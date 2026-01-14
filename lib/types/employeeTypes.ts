@@ -1,23 +1,4 @@
-/* File: employeeTypes.ts
-Overview: Type definitions for employee (tech) profiles and operations
-Types:
-  EmployeeSkill: Valid skill types for technicians
-  SkillLevel: Skill proficiency levels (1=novice, 2=intermediate, 3=expert)
-  EmployeeDTO: Canonical employee profile shape exposed via API
-  AvailableTechDTO: Enriched tech info for routing/assignment algorithms
-  CreateEmployeeProfileInput: Input for creating tech profile
-  CreateEmployeeProfileSuccess: Success response for profile creation
-  GetEmployeeProfileInput: Input for fetching employee profile
-  GetEmployeeProfileSuccess: Success response with profile data
-  UpdateEmployeeAvailabilityInput: Input for updating tech availability
-  UpdateEmployeeAvailabilitySuccess: Success response for availability update
-  UpdateEmployeeProfileInput: Input for updating employee profile
-  UpdateEmployeeProfileSuccess: Success response for profile update
-  GetAvailableTechsInput: Input for fetching available techs
-  GetAvailableTechsSuccess: Success response with available tech list
-*/
-
-export type EmployeeSkill =
+export type EmployeeSkill = // List of skills that a tech can have
   | 'hvac_install'
   | 'hvac_repair'
   | 'hvac_maintenance'
@@ -26,13 +7,10 @@ export type EmployeeSkill =
   | 'ductwork'
   | 'plumbing';
 
-export type SkillLevel = 1 | 2 | 3; // 1=novice, 2=intermediate, 3=expert
+export type SkillLevel = 1 | 2 | 3; // Good for now but we need to add specific criteria for each skill level in the future
 
-/**
- * Canonical employee profile shape exposed via API
- * All fields are required; use explicit null for empty values
- */
-export type EmployeeDTO = {
+
+export type EmployeeDataType = {
   id: string;
   userId: string;          // Links to the user account
   companyId: string;
@@ -43,6 +21,7 @@ export type EmployeeDTO = {
 
   // Location (REQUIRED for routing)
   homeAddress: string;
+  currentLocation: string | null; // Updated on each job assignment/completion, null if unknown
 
   // Contact (explicit null if not provided)
   phone: string | null;
@@ -53,7 +32,7 @@ export type EmployeeDTO = {
   availabilityUpdatedAt: string; // ISO 8601 - set on creation and every update
   currentJobId: string | null;   // null if no current job
   maxConcurrentJobs: number;     // Default: 1
-  isActive: boolean;             // Default: true
+  isActive: boolean;             // Controls wether the tech is on a job or not, default: false
 
   // Performance (REQUIRED with defaults)
   rating: number;                // 1-5 (default: 3.0)
@@ -67,11 +46,8 @@ export type EmployeeDTO = {
   createdAt: string;          // ISO 8601
 };
 
-/**
- * Enriched tech info for routing/assignment algorithms
- * Extends EmployeeDTO with computed fields
- */
-export type AvailableTechDTO = EmployeeDTO & {
+
+export type AvailableTechDataType = EmployeeDataType & {
   distanceKm: number | null;     // Calculated distance from job location (null if can't calculate)
   currentJobsCount: number;      // Current number of active jobs (always computed)
 };
@@ -98,7 +74,7 @@ export type CreateEmployeeProfileInput = {
 
 export type CreateEmployeeProfileSuccess = {
   profileId: string;
-  profile?: EmployeeDTO;   // Optional: return full profile for convenience
+  profile?: EmployeeDataType;   // Optional: return full profile for convenience
 };
 
 /**
@@ -109,7 +85,7 @@ export type GetEmployeeProfileInput = {
 };
 
 export type GetEmployeeProfileSuccess = {
-  profile: EmployeeDTO;
+  profile: EmployeeDataType;
 };
 
 /**
@@ -123,7 +99,7 @@ export type UpdateEmployeeAvailabilityInput = {
 
 export type UpdateEmployeeAvailabilitySuccess = {
   success: true;
-  profile?: EmployeeDTO;   // Optional: return updated profile
+  profile?: EmployeeDataType;   // Optional: return updated profile
 };
 
 /**
@@ -145,7 +121,7 @@ export type UpdateEmployeeProfileInput = {
 
 export type UpdateEmployeeProfileSuccess = {
   success: true;
-  profile?: EmployeeDTO;   // Optional: return updated profile
+  profile?: EmployeeDataType;   // Optional: return updated profile
 };
 
 /**
@@ -160,5 +136,5 @@ export type GetAvailableTechsInput = {
 };
 
 export type GetAvailableTechsSuccess = {
-  techs: AvailableTechDTO[];
+  techs: AvailableTechDataType[];
 };
