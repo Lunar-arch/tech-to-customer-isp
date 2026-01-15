@@ -10,6 +10,13 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get('companyId');
 
     const employees = companyId
+	/* 
+  	Code Review said this:
+    	The type assertion as never[] bypasses TypeScript's type checking in an unsafe way. Consider
+    	using a more specific type or restructuring the function signature to properly handle
+    	the parameter spread.
+  	*/
+ // TODO: Refactor to avoid unsafe type assertion
       ? await queryAll<EmployeeDataType>`
           SELECT
             id,

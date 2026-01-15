@@ -19,9 +19,18 @@ export default function Sidebar({ autoCollapse = true, items = [] }: SidebarPara
 }
 
 
-function SidebarItem({ id, title, icon, onClick }: SidebarItemParams) {
+function SidebarItem({ title, onClick }: SidebarItemParams) {
 	return (
-		<li onClick={() => onClick} className="grid col-span-2 grid-cols-subgrid w-full hover:bg-background-secondary/50 transition-colors duration-200 h-8 items-center rounded-md px-2">
+		<li
+			onClick={onClick}
+				/*
+					The onClick handler will be invoked immediately during render. The previous version had () => 
+					onClick which was also incorrect, but the fix should be onClick={onClick} only if onClick is
+					already a function, or onClick={() => onClick()} if onClick needs to be invoked.
+				*/
+				// TODO: Fix the onClick handler invocation
+			className="grid col-span-2 grid-cols-subgrid w-full hover:bg-background-secondary/50 transition-colors duration-200 h-8 items-center rounded-md px-2"
+		>
 			<div className="bg-red-300/50 aspect-square">
 			</div>
 			<p className="">

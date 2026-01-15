@@ -2,7 +2,7 @@ export type SidebarItemParams = {
 	id: number;
 	title: string;
 	icon: string;
-	onClick?: Function;
+	onClick?: () => void;
 }
 
 export type SidebarParams =  {

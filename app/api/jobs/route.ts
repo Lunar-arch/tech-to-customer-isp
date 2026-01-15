@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { queryAll, sql, toCamelCase } from '@/server/db/connection';
+import { getSql, queryAll, toCamelCase } from '@/server/db/connection';
 import { CreateJobInput, CreateJobSuccess, GetJobsSuccess, JobDTO, JobStatus } from '@/lib/types/jobTypes';
 import { getPublicError } from '@/lib/publicErrors';
 
@@ -16,6 +16,12 @@ export async function GET(request: NextRequest) {
     let jobs: JobDTO[];
 
     if (companyId && parsedStatus && assignedTechId) {
+		/* Code Review said this:
+			The GET handler contains significant code duplication with the same SELECT statement 
+			repeated across 8 different conditional branches. Consider extracting the base query 
+			and building WHERE conditions dynamically to reduce duplication and improve maintainability.
+		*/
+		// TODO: Refactor to reduce duplication
       jobs = await queryAll<JobDTO>`
         SELECT
           id,
@@ -202,6 +208,7 @@ export async function GET(request: NextRequest) {
 // Create new job
 export async function POST(request: NextRequest) {
   try {
+    const sql = getSql();
     const body: CreateJobInput = await request.json();
 
     // Validate required fields

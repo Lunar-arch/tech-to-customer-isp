@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql, queryOne, toCamelCase } from '@/server/db/connection';
+import { getSql, queryOne, toCamelCase } from '@/server/db/connection';
 import { AssignTechInput, AssignTechSuccess, JobDTO } from '@/lib/types/jobTypes';
 import { getPublicError } from '@/lib/publicErrors';
 
@@ -9,10 +9,11 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const sql = getSql();
     const { id } = await context.params;
-    const body = (await request.json()) as AssignTechInput & { employeeId?: string };
+    const body = (await request.json()) as AssignTechInput;
 
-    const assignedTechId = body.assignedTechId ?? body.employeeId;
+    const assignedTechId = body.assignedTechId;
 
     if (!assignedTechId) {
       return NextResponse.json(
@@ -41,8 +42,13 @@ export async function PATCH(
         { status: 400 }
       );
     }
-
+ 
     // Check if job exists
+	/* Code review said this:
+		The query selects 'assigned_employee_id' but the database column is 'assigned_tech_id'
+		(as seen in other queries). This inconsistency will cause the query to fail or return null values.
+	*/
+	// TODO: Fix column name inconsistency
     const existingJob = await queryOne<{ id: string; assignedEmployeeId: string | null }>`
       SELECT id, assigned_employee_id as "assignedEmployeeId"
       FROM jobs
@@ -68,7 +74,7 @@ export async function PATCH(
       UPDATE jobs
       SET 
         assigned_tech_id = ${assignedTechId},
-        status = 'assigned',
+        status = 'assigned'
       WHERE id = ${id}
       RETURNING 
         id,

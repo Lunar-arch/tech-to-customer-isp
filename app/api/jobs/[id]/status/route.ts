@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql, toCamelCase } from '@/server/db/connection';
+import { getSql, toCamelCase } from '@/server/db/connection';
 import { JobDTO, JobStatus, UpdateJobStatusInput, UpdateJobStatusSuccess } from '@/lib/types/jobTypes';
 import { getPublicError } from '@/lib/publicErrors';
 
 // Update job status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const body = (await request.json()) as Partial<UpdateJobStatusInput> & { notes?: string };
+    const sql = getSql();
+    const { id } = await context.params;
+    const body = (await request.json()) as Partial<UpdateJobStatusInput>;
 
     const status = body.status;
-    const completionNotes = body.completionNotes ?? body.notes;
+    const completionNotes = body.completionNotes;
 
     if (!status) {
       return NextResponse.json(
@@ -31,12 +33,12 @@ export async function PATCH(
 
     const updatedRows = await sql`
       UPDATE jobs
-      SET 
+      SET
         status = ${status},
-        completion_notes = ${completionNotes ?? sql`completion_notes`},
-        completed_at = ${status === 'completed' ? sql`NOW()` : sql`completed_at`}
-      WHERE id = ${params.id}
-      RETURNING 
+        completion_notes = COALESCE(${completionNotes ?? null}, completion_notes),
+        completed_at = CASE WHEN ${status} = 'completed' THEN NOW() ELSE completed_at END
+      WHERE id = ${id}
+      RETURNING
         id,
         company_id,
         customer_name,

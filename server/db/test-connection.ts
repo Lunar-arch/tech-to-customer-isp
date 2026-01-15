@@ -1,7 +1,7 @@
 // /server/db/test-connection.ts
 // Run this with: npx tsx server/db/test-connection.ts
 
-import { sql, testConnection, toCamelCase } from './connection';
+import { getSql, testConnection, toCamelCase } from './connection';
 
 async function runTests() {
   console.log('🔍 Testing Neon Database Connection...\n');
@@ -19,6 +19,7 @@ async function runTests() {
 
   // Test 2: Check if tables exist
   try {
+    const sql = getSql();
     const rows = await sql`
       SELECT table_name 
       FROM information_schema.tables 

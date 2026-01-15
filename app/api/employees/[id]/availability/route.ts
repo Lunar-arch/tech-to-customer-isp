@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql, toCamelCase } from '@/server/db/connection';
+import { getSql, toCamelCase } from '@/server/db/connection';
 import { EmployeeDataType, UpdateEmployeeAvailabilityInput, UpdateEmployeeAvailabilitySuccess } from '@/lib/types/employeeTypes';
 import { getPublicError } from '@/lib/publicErrors';
 
 // Update employee availability
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const sql = getSql();
+    const { id } = await context.params;
     const body: UpdateEmployeeAvailabilityInput = await request.json();
 
     if (typeof body.isAvailable !== 'boolean') {
@@ -23,7 +25,7 @@ export async function PATCH(
       SET 
         is_available = ${body.isAvailable},
         availability_updated_at = NOW()
-      WHERE user_id = ${params.id}
+      WHERE id = ${id}
       RETURNING 
         id,
         user_id,

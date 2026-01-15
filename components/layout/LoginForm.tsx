@@ -29,8 +29,7 @@ export default function LoginForm() {
 				return;
 			}
 
-			const data = (await res.json()) as LoginSuccess;
-			localStorage.setItem('authToken', data.token);
+			await res.json() as LoginSuccess;
 			router.push('/');
 		} catch {
 			setError('Network error. Please try again.');

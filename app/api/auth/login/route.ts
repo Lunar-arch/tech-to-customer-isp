@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'; // Import Next.js server utility types
-import { sql, queryOne } from '@/server/db/connection'; // Import database connection utilities
+import { queryOne } from '@/server/db/connection'; // Import database connection utilities
 import { LoginInput, LoginSuccess, UserDTO } from '@/lib/types/userTypes'; // Import user-related types
 import { getPublicError } from '@/lib/publicErrors'; // Import function to get public error messages
 
@@ -48,6 +48,12 @@ export async function POST(request: NextRequest) {
 
     // TODO: Generate JWT token
     const token = `token_${user.id}_${Date.now()}`;
+	/* 
+		The token generation is using a predictable format instead of a cryptographically secure 
+		method. This makes tokens easily guessable and vulnerable to forgery. Use jsonwebtoken 
+		(already in dependencies) or another proper JWT library to generate secure tokens.
+	*/
+	// TODO: Replace with secure token generation
 
     const response: LoginSuccess = {
       token,

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql, toCamelCase, queryOne } from '@/server/db/connection';
+import { getSql, toCamelCase, queryOne } from '@/server/db/connection';
 import { AvailableTechDataType, GetAvailableTechsSuccess } from '@/lib/types/employeeTypes';
 import { getPublicError } from '@/lib/publicErrors';
 
 // Get available techs for a job
 export async function GET(request: NextRequest) {
   try {
+    const sql = getSql();
     const { searchParams } = new URL(request.url);
     const jobId = searchParams.get('jobId');
     const companyId = searchParams.get('companyId');
